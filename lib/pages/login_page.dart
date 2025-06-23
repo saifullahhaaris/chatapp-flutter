@@ -1,3 +1,4 @@
+import 'package:chat_app/auth/auth_service.dart';
 import 'package:chat_app/components/buttons.dart';
 import 'package:chat_app/components/textfield.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +8,31 @@ class LoginPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
 
-  LoginPage({super.key});
+  final void Function()? onTap;
 
-  void login(){
+  LoginPage({
+    super.key,
+    required this.onTap,
+  });
 
+  void login(BuildContext context) async {
+    // Auth service
+    final authService = AuthService();
+    
+    // try login
+    try{
+      await authService.signInWithEmailPassword(
+          _emailController.text, 
+          _pwController.text
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+        title: Text(e.toString()),
+        ),
+      );
+    }
   }
 
   @override
@@ -21,6 +43,7 @@ class LoginPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             // logo
             Icon(
               Icons.message,
@@ -28,7 +51,7 @@ class LoginPage extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
 
-            SizedBox(height: 50,),
+            SizedBox(height: 40,),
 
             // welcome back message
             Text(
@@ -50,7 +73,7 @@ class LoginPage extends StatelessWidget {
 
             SizedBox(height: 25,),
 
-            // email textfield
+            // password textfield
             MyTextField(
               hintText: "Password",
               obsecureText: true,
@@ -62,23 +85,29 @@ class LoginPage extends StatelessWidget {
             // login button
             MyButton(
               text: "Login",
-              onTap: login,
+              onTap: () => login(context),
             ),
+
+            SizedBox(height: 25,),
 
             // register now
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                    "Not a member? ",
-                  style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                ),
-                Text(
-                  "Register Now",
+                  "Not a member? ",
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary),
+                      color: Theme.of(context).colorScheme.primary),
                 ),
+                GestureDetector(
+                  onTap: onTap,
+                  child: Text(
+                    "Register Now",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                )
               ],
             )
           ],
